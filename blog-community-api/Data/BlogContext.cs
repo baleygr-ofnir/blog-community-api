@@ -91,6 +91,23 @@ public class BlogContext : DbContext
                 .WithOne(bp => bp.Category)
                 .HasForeignKey(bp => bp.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasData(
+                new Category
+                {
+                    Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    Name = "Training"
+                },
+                new Category
+                {
+                    Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                    Name = "Fashion"
+                },
+                new Category
+                {
+                    Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                    Name = "Health"
+                });
         });
 
         modelBuilder.Entity<Comment>(entity =>

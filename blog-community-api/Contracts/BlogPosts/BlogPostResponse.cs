@@ -1,4 +1,4 @@
-namespace blog_community_api.Entities.Contracts.BlogPosts;
+namespace blog_community_api.Contracts.BlogPosts;
 
 public class BlogPostResponse
 {
@@ -8,7 +8,7 @@ public class BlogPostResponse
     public string Title { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string CategoryName { get; set; } = null!;
-    public string Username { get; set; } = null!;
+    public string AuthorUsername { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

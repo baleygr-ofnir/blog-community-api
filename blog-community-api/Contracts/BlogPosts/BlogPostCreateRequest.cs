@@ -1,4 +1,4 @@
-namespace blog_community_api.Entities.Contracts.BlogPosts;
+namespace blog_community_api.Contracts.BlogPosts;
 
 public class BlogPostCreateRequest
 {

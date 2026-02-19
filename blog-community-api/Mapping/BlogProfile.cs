@@ -1,8 +1,8 @@
 using AutoMapper;
 using blog_community_api.Contracts.Category;
 using blog_community_api.Data.Entities;
-using blog_community_api.Entities.Contracts.BlogPosts;
-using blog_community_api.Entities.Contracts.Comments;
+using blog_community_api.Contracts.BlogPosts;
+using blog_community_api.Contracts.Comments;
 
 namespace blog_community_api.Mapping;
 
@@ -11,7 +11,9 @@ public class BlogProfile : Profile
     public BlogProfile()
     {
         // BlogPosts
-        CreateMap<BlogPost, BlogPostResponse>();
+        CreateMap<BlogPost, BlogPostResponse>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.AuthorUsername, opt => opt.MapFrom(src => src.User.Username));
         
         CreateMap<BlogPostCreateRequest, BlogPost>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())

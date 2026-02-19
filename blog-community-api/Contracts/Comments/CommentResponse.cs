@@ -1,4 +1,4 @@
-namespace blog_community_api.Entities.Contracts.Comments;
+namespace blog_community_api.Contracts.Comments;
 
 public class CommentResponse
 {
