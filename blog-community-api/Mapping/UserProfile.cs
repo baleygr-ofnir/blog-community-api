@@ -1,6 +1,6 @@
 using AutoMapper;
 using blog_community_api.Contracts.Users;
-using blog_community_api.Entities;
+using blog_community_api.Data.Entities;
 
 namespace blog_community_api.Mapping;
 
@@ -14,5 +14,10 @@ public class UserProfile : Profile
             .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+        
+        CreateMap<UserUpdateRequest, User>()
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
     }
 }

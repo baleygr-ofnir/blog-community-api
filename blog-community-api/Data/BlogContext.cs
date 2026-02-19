@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using blog_community_api.Entities;
+using blog_community_api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace blog_community_api.Data;

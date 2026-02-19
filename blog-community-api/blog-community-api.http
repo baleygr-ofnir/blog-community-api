@@ -1,2 +1,47 @@
 @blog_community_api_HostAddress = http://localhost:5158/api
 
+### Register User
+POST {{blog_community_api_HostAddress}}/users/register
+Content-Type: application/json
+
+{
+    "username": "testuser1",
+    "email": "test1@example.com",
+    "password": "P@ssword!"
+}
+
+### Login
+POST {{blog_community_api_HostAddress}}/users/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "testuser1",
+  "password": "P@ssword!"
+}
+
+### Existing user routes:
+###
+@userId = 019c7645-4dfb-72e9-9fef-857b1a4ef751
+@username = testuser1
+@email = test1@example.com
+
+### Get By User ID
+GET {{blog_community_api_HostAddress}}/users/{{userId}}
+##Authorization: Bearer {{token}}
+Accept: application/json
+
+### Get By Username
+GET {{blog_community_api_HostAddress}}/users/{{username}}
+Accept: application/json
+
+### Update User
+PUT {{blog_community_api_HostAddress}}/users/{{userId}}
+Content-Type: application/json
+
+{
+  "username": "updatedUser",
+  "email": "updated@example.com"
+}
+
+### Delete User
+DELETE {{blog_community_api_HostAddress}}/users/{{userId}}
