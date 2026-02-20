@@ -1,7 +1,6 @@
 using AutoMapper;
-using blog_community_api.Contracts.Category;
-using blog_community_api.Data.Entities;
 using blog_community_api.Contracts.BlogPosts;
+using blog_community_api.Data.Entities;
 using blog_community_api.Contracts.Comments;
 
 namespace blog_community_api.Mapping;
@@ -34,7 +33,8 @@ public class BlogProfile : Profile
             .ForMember(dest => dest.Category, opt => opt.Ignore());
         
         // Comments
-        CreateMap<Comment, CommentResponse>();
+        CreateMap<Comment, CommentResponse>()
+            .ForMember(dest => dest.AuthorUsername, opt => opt.MapFrom(src => src.User.Username));
         
         CreateMap<CommentCreateRequest, Comment>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -47,5 +47,9 @@ public class BlogProfile : Profile
         
         // Categories
         CreateMap<Category, CategoryResponse>();
+
+        CreateMap<CategoryRequest, Category>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.BlogPosts, opt => opt.Ignore());
     }
 }

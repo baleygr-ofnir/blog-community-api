@@ -5,12 +5,12 @@ POST {{blog_community_api_HostAddress}}/users/register
 Content-Type: application/json
 
 {
-    "username": "testuser1",
-    "email": "test1@example.com",
+    "username": "testuser2",
+    "email": "test2@example.com",
     "password": "P@ssword!"
 }
 
-### Login
+### Login testuser1
 POST {{blog_community_api_HostAddress}}/users/login
 Content-Type: application/json
 
@@ -19,23 +19,38 @@ Content-Type: application/json
   "password": "P@ssword!"
 }
 
+### Login testuser2
+POST {{blog_community_api_HostAddress}}/users/login
+Content-Type: application/json
+
+{
+  "usernameOrEmail": "testuser2",
+  "password": "P@ssword!"
+}
+
 ### Existing user routes:
 ###
-@userId = 019c7645-4dfb-72e9-9fef-857b1a4ef751
-@username = testuser1
-@email = test1@example.com
+@userId1 = 019c7645-4dfb-72e9-9fef-857b1a4ef751
+@username1 = testuser1
+@email1 = test1@example.com
+@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljNzY0NS00ZGZiLTcyZTktOWZlZi04NTdiMWE0ZWY3NTEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWM3NjQ1LTRkZmItNzJlOS05ZmVmLTg1N2IxYTRlZjc1MSIsImp0aSI6ImQ3YjAyYWJhLWUzNzctNDIzNS1iMDJkLWU3OWU4ZTQ2Njg1NyIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzE2MDU3MDIsImV4cCI6MTc3MTYwOTMwMn0.GRBy1z_OV8Gre9Sy6jLnbgSHlcewlAE3Lnidt6GF51g
+
+@userId2 = 019c7b93-e9f3-74f1-9bba-ea006eef944b
+@username2 = testuser1
+@email2 = test1@example.com
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljN2I5My1lOWYzLTc0ZjEtOWJiYS1lYTAwNmVlZjk0NGIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWM3YjkzLWU5ZjMtNzRmMS05YmJhLWVhMDA2ZWVmOTQ0YiIsImp0aSI6IjE0YTkyNGM0LTE2NmUtNDg4OC04ZDMzLTE3MWI4ZjY4N2JkMSIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzE2MDU3NDMsImV4cCI6MTc3MTYwOTM0M30.79vKugCvV77P8YyxTAhJo_NHIgTZi516ee2oPnhdmYI
 
 ### Get By User ID
-GET {{blog_community_api_HostAddress}}/users/{{userId}}
+GET {{blog_community_api_HostAddress}}/users/{{userId1}}
 ##Authorization: Bearer {{token}}
 Accept: application/json
 
 ### Get By Username
-GET {{blog_community_api_HostAddress}}/users/{{username}}
+GET {{blog_community_api_HostAddress}}/users/{{username1}}
 Accept: application/json
 
 ### Update User
-PUT {{blog_community_api_HostAddress}}/users/{{userId}}
+PUT {{blog_community_api_HostAddress}}/users/{{userId1}}
 Content-Type: application/json
 
 {
@@ -45,3 +60,74 @@ Content-Type: application/json
 
 ### Delete User
 DELETE {{blog_community_api_HostAddress}}/users/{{userId}}
+
+### Create Category as testuser1
+POST {{blog_community_api_HostAddress}}/categories
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+  "name": "Skiing"
+}
+
+### List Categories
+GET {{blog_community_api_HostAddress}}/Categories
+
+### Create Blog post as testuser1
+POST {{blog_community_api_HostAddress}}/BlogPosts
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+  "categoryId": "3a6b0e59-4bf8-4fef-94b0-80c0b913f1b4",
+  "title": "My First Post About Skiing",
+  "content": "This is the content"
+}
+
+### List Blog posts
+GET {{blog_community_api_HostAddress}}/blogposts
+
+### Filter Blog posts by title
+GET {{blog_community_api_HostAddress}}/blogposts?title=first
+
+### Filter Blog posts by category
+GET {{blog_community_api_HostAddress}}/BlogPosts?categoryId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+
+### Get Blog post by ID
+GET {{blog_community_api_HostAddress}}/blogposts/a59b9d2e-438b-47f2-ab88-3e489d3e2ccc
+
+### Update Blog post
+PUT {{blog_community_api_HostAddress}}/blogposts/422ab538-ef67-4e2f-a4e2-1a69c3bf01ab
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoryId": "cda2b101-f8bb-4859-9932-50a41e989ce2",
+  "title": "My First Post About Fishing",
+  "content": "Fishing stuff"
+}
+
+### Delete Blog post
+DELETE {{blog_community_api_HostAddress}}/blogposts/422ab538-ef67-4e2f-a4e2-1a69c3bf01ab
+Authorization: Bearer {{token}}
+
+### testuser2 comment on testuser1's post
+POST {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+Authorization: Bearer {{token2}}
+Content-Type: application/json
+
+{
+  "content": "comment on skiing post"
+}
+
+### Get comments for post
+GET {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+
+### Comment own post test
+POST {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+Authorization: Bearer {{token1}}
+Content-Type: application/json
+
+{
+  "content": "comment own post test"
+}

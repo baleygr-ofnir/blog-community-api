@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using blog_community_api.Contracts.BlogPosts;
+using blog_community_api.Contracts.Comments;
 using blog_community_api.Data;
 using blog_community_api.Data.Entities;
 using blog_community_api.Data.Repositories;
@@ -18,20 +19,20 @@ public class BlogPostsController : ControllerBase
 {
     private readonly IRepository<BlogPost> _blogPostRepository;
     private readonly IRepository<Category> _categoryRepository;
-    private readonly IRepository<User> _userRepository;
+    private readonly IRepository<Comment> _commentRepository;
     private readonly IMapper _mapper;
 
     public BlogPostsController
     (
         IRepository<BlogPost> blogPostRepository,
         IRepository<Category> categoryRepository,
-        IRepository<User> userRepository,
+        IRepository<Comment> commentRepository,
         IMapper mapper
     )
     {
         _blogPostRepository = blogPostRepository;
         _categoryRepository = categoryRepository;
-        _userRepository = userRepository;
+        _commentRepository = commentRepository;
         _mapper = mapper;
     }
 
@@ -75,11 +76,12 @@ public class BlogPostsController : ControllerBase
 
         if (categoryId.HasValue || !string.IsNullOrWhiteSpace(title))
         {
+            var trimmedTitle = title?.Trim();
             blogPosts = await _blogPostRepository.FindAsync
                 (
                     bp => 
                         (!categoryId.HasValue || bp.CategoryId == categoryId.Value)
-                        && (string.IsNullOrEmpty(title) || bp.Title.Contains(title))
+                        && (string.IsNullOrEmpty(title) || bp.Title.ToLower().Contains(title.ToLower()))
                 );
         }
         else
@@ -150,6 +152,55 @@ public class BlogPostsController : ControllerBase
         await _blogPostRepository.SaveChangesAsync();
         
         return NoContent();
+    }
+
+    [HttpPost("{blogPostId:guid}/comments")]
+    [Authorize]
+    public async Task<ActionResult<CommentResponse>> CreateComment(Guid blogPostId, [FromBody] CommentCreateRequest request)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty) return Unauthorized();
+        
+        var blogPost = await _blogPostRepository.GetAsync(blogPostId);
+        if (blogPost is null) return NotFound("BlogPost not found");
+        
+        if (blogPost.UserId == userId) return Forbid();
+
+        var comment = _mapper.Map<Comment>(request);
+        comment.Id = Guid.NewGuid();
+        comment.BlogPostId = blogPostId;
+        comment.UserId = userId;
+        comment.CreatedAt = DateTime.UtcNow;
+        
+        await _commentRepository.AddAsync(comment);
+        await _blogPostRepository.SaveChangesAsync();
+        
+        var createdComment = await _commentRepository.GetAsync(comment.Id);
+        if (createdComment is null) return StatusCode(StatusCodes.Status500InternalServerError, "Failed to load created comment.");
+        
+        var response = _mapper.Map<CommentResponse>(createdComment);
+        
+        return CreatedAtAction
+            (
+                nameof(GetBlogPostById),
+                new { id = createdComment.Id },
+                response
+            );
+    }
+
+    [HttpGet("{blogPostId:guid}/comments")]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments(Guid blogPostId)
+    {
+        var blogPost = await _blogPostRepository.GetAsync(blogPostId);
+        if (blogPost is null) return NotFound("Blog post not found.");
+        
+        var comments = await _commentRepository.FindAsync(c => c.BlogPostId == blogPostId);
+        var responses = _mapper.Map<List<CommentResponse>>(comments);
+        
+        return Ok(responses);
     }
 
     private Guid GetCurrentUserId()

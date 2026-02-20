@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet]
+    [HttpGet("{username}")]
     public async Task<IActionResult> GetByUsername([FromRoute] string username)
     {
         if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");

@@ -1,4 +1,4 @@
-namespace blog_community_api.Contracts.Category;
+namespace blog_community_api.Contracts.BlogPosts;
 
 public class CategoryResponse
 {
