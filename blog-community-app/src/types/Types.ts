@@ -1,10 +1,36 @@
+export interface UserResponse {
+    id: string;
+    username: string;
+    email: string;
+}
+
 export interface UserLoginResponse {
     userId: string;
     token: string;
 }
 
+export interface UserLoginRequest {
+    usernameOrEmail: string;
+    password: string;
+}
+
+export interface UserRegisterRequest {
+    username: string;
+    password: string;
+    email: string;
+}
+
+export interface UserUpdateRequest {
+    username: string;
+    email: string;
+}
+
 export interface CategoryResponse {
     id: string;
+    name: string;
+}
+
+export interface CategoryRequest {
     name: string;
 }
 

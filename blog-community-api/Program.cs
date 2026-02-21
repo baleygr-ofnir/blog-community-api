@@ -20,7 +20,20 @@ public class Program
         var issuer =  jwtSection["Issuer"];
         var audience = jwtSection["Audience"];
         var key = jwtSection["Key"];
+        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(
+                name: MyAllowSpecificOrigins,
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+        });
+        
         // Add services to the container.
         builder.Services.AddControllers();
         
@@ -68,6 +81,8 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseCors(MyAllowSpecificOrigins);
+        
         app.UseAuthentication();
         
         app.UseAuthorization();
