@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace blog_community_api.Data.Repositories;
 
-public class BlogPostRepository : GenericRepository<BlogPost>
+public class BlogPostRepository(BlogContext context) : GenericRepository<BlogPost>(context)
 {
-    public BlogPostRepository(BlogContext context) : base(context)
-    {
-    }
-
     public override async Task<BlogPost?> GetAsync(Guid id)
     {
         return await Context.BlogPosts

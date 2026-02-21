@@ -2,12 +2,8 @@ using blog_community_api.Data.Entities;
 
 namespace blog_community_api.Data.Repositories;
 
-public class UserRepository : GenericRepository<User>
+public class UserRepository(BlogContext context) : GenericRepository<User>(context)
 {
-    public UserRepository(BlogContext context) : base(context)
-    {
-    }
-
     public async Task<User?> GetByUsernameAsync(string username)
     {
         var user = await FindAsync(u => u.Username.ToLower() == username.ToLower());

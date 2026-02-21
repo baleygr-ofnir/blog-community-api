@@ -4,12 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace blog_community_api.Data.Repositories;
 
-public class CommentRepository : GenericRepository<Comment>
+public class CommentRepository(BlogContext context) : GenericRepository<Comment>(context)
 {
-    public CommentRepository(BlogContext context) : base(context)
-    {
-    }
-
     public override async Task<Comment?> GetAsync(Guid id)
     {
         return await Context.Comments
