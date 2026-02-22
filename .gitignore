@@ -29,6 +29,8 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sw?
+*.user
+*.docstates
 
 .env
 .env.local
