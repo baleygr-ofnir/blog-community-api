@@ -87,7 +87,7 @@ public class UserService : GenericService<User>
         
         var updated = await Update(id, user);
 
-        var response = Mapper.Map<UserResponse>(user);
+        var response = Mapper.Map<UserResponse>(updated);
 
         return (response, null);
     }

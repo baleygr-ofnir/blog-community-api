@@ -2,13 +2,12 @@ using System.Linq.Expressions;
 using AutoMapper;
 using blog_community_api.Core.Interfaces;
 using blog_community_api.Data.Repositories;
-using blog_community_api.Security;
 
 namespace blog_community_api.Core.Services;
 
 public abstract class GenericService<T> : IService<T> where T : class
 {
-    protected IRepository<T> Repository;
+    protected readonly IRepository<T> Repository;
     protected readonly IMapper Mapper;
 
     public GenericService(IRepository<T> repository, IMapper mapper)

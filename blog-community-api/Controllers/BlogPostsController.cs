@@ -1,16 +1,11 @@
 using System.Security.Claims;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using blog_community_api.Contracts.BlogPosts;
 using blog_community_api.Contracts.Comments;
 using blog_community_api.Core.Interfaces;
 using blog_community_api.Core.Services;
-using blog_community_api.Data;
 using blog_community_api.Data.Entities;
-using blog_community_api.Data.Repositories;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace blog_community_api.Controllers;
@@ -86,6 +81,7 @@ public class BlogPostsController : ControllerBase
         if (userId == Guid.Empty) return Unauthorized();
 
         var deleted = await _blogPostService.DeleteAsync(id);
+        if (!deleted) return NotFound();
         
         return NoContent();
     }

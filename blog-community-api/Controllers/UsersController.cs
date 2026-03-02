@@ -1,13 +1,9 @@
 using System.Security.Claims;
-using AutoMapper;
 using blog_community_api.Contracts.Users;
 using blog_community_api.Core.Interfaces;
 using blog_community_api.Core.Services;
 using blog_community_api.Data.Entities;
-using blog_community_api.Data.Repositories;
-using blog_community_api.Security;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 

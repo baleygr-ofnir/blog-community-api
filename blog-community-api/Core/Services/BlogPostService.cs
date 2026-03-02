@@ -3,8 +3,6 @@ using blog_community_api.Contracts.BlogPosts;
 using blog_community_api.Contracts.Comments;
 using blog_community_api.Data.Entities;
 using blog_community_api.Data.Repositories;
-using blog_community_api.Security;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace blog_community_api.Core.Services;
 
@@ -100,7 +98,7 @@ public class BlogPostService : GenericService<BlogPost>
         comment.UserId = userId;
         comment.CreatedAt = DateTime.UtcNow;
 
-        var added = await _commentRepository.AddAsync(comment);
+        await _commentRepository.AddAsync(comment);
         await _commentRepository.SaveChangesAsync();
 
         var created = await _commentRepository.GetAsync(comment.Id);

@@ -8,7 +8,7 @@ public static class PasswordHasher
     private const int HashSize = 32;
     private const int Iterations = 100_000;
     private const char Delimiter = ';';
-    private static readonly HashAlgorithmName s_algorithmName = HashAlgorithmName.SHA256;
+    private static readonly HashAlgorithmName SAlgorithmName = HashAlgorithmName.SHA256;
 
     public static string HashPassword(string password)
     {
@@ -18,7 +18,7 @@ public static class PasswordHasher
                 password,
                 salt,
                 Iterations,
-                s_algorithmName,
+                SAlgorithmName,
                 HashSize
             );
 
@@ -45,7 +45,7 @@ public static class PasswordHasher
                 password,
                 salt,
                 iterations,
-                s_algorithmName,
+                SAlgorithmName,
                 hash.Length
             );
         

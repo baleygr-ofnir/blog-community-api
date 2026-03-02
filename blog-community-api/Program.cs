@@ -2,8 +2,6 @@ using System.Text;
 using blog_community_api.Data;
 using blog_community_api.Data.Repositories;
 using blog_community_api.Data.Entities;
-using blog_community_api.Mapping;
-using AutoMapper;
 using blog_community_api.Core.Interfaces;
 using blog_community_api.Core.Services;
 using blog_community_api.Security;
@@ -22,12 +20,12 @@ public class Program
         var issuer =  jwtSection["Issuer"];
         var audience = jwtSection["Audience"];
         var key = jwtSection["Key"];
-        var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+        var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(
-                name: MyAllowSpecificOrigins,
+                name: myAllowSpecificOrigins,
                 policy =>
                 {
                     policy.WithOrigins("http://localhost:5173")
@@ -48,7 +46,7 @@ public class Program
         builder.Services.AddScoped<IRepository<BlogPost>, BlogPostRepository>();
         builder.Services.AddScoped<IRepository<Category>, CategoryRepository>();
         builder.Services.AddScoped<IRepository<Comment>, CommentRepository>();
-        builder.Services.AddAutoMapper(cfg => { }, typeof(Program).Assembly);
+        builder.Services.AddAutoMapper(_ => { }, typeof(Program).Assembly);
         
         // Security DIs
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -89,7 +87,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseCors(MyAllowSpecificOrigins);
+        app.UseCors(myAllowSpecificOrigins);
         
         app.UseAuthentication();
         

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using blog_community_api.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
