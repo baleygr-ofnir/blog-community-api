@@ -1,10 +1,15 @@
+using System.Security.Claims;
 using AutoMapper;
 using blog_community_api.Contracts.Users;
+using blog_community_api.Core.Interfaces;
+using blog_community_api.Core.Services;
 using blog_community_api.Data.Entities;
 using blog_community_api.Data.Repositories;
 using blog_community_api.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace blog_community_api.Controllers;
 
@@ -12,132 +17,90 @@ namespace blog_community_api.Controllers;
 [ApiController]
 public class UsersController : ControllerBase
 {
-    private readonly UserRepository? _userRepository;
-    private readonly IMapper _mapper;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly UserService _userService;
     
-    public UsersController(IRepository<User> userRepository, IMapper mapper, IJwtTokenService jwtTokenService)
+    public UsersController(IService<User> userService)
     {
-        _userRepository = userRepository as UserRepository;
-        _mapper = mapper;
-        _jwtTokenService = jwtTokenService;
+        _userService = userService as UserService ?? throw new Exception("UserService is unavailable.");
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    public async Task<IActionResult> GetUser([FromRoute] Guid id)
     {
-        if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");
-        
-        User? user = await _userRepository.GetAsync(id);
+        var user = await _userService.GetAsync(id);
         if (user is null) return NotFound();
         
-        UserResponse? response = _mapper.Map<UserResponse>(user);
-        return Ok(response);
+        return Ok(user);
     }
 
     [HttpGet("{username}")]
     public async Task<IActionResult> GetByUsername([FromRoute] string username)
     {
-        if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");
-        
-        User? user = await _userRepository.GetByUsernameAsync(username);
+        var user = await _userService.GetByUsernameAsync(username);
         if (user is null) return NotFound();
-
-        UserResponse? response = _mapper.Map<UserResponse>(user);
-        return Ok(response);
+        
+        return Ok(user);
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterRequest request)
     {
-        if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var result = await _userService.RegisterUserAsync(request);
+        if (result.Error is not null) return BadRequest(result.Error);
         
-        var existingUsername = await _userRepository.GetByUsernameAsync(request.Username);
-        if (existingUsername is not null) return BadRequest("Username already exists");
-        
-        var existingEmail = await _userRepository.GetUserByEmailAsync(request.Email);
-        if (existingEmail is not null) return BadRequest("Email already exists");
-        
-        var user = _mapper.Map<User>(request);
-        
-        user.PasswordHash = PasswordHasher.HashPassword(request.Password);
-        
-        user.CreatedAt = DateTime.UtcNow;
-        user.UpdatedAt = null;
-        
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
-        
-        var response = _mapper.Map<UserResponse>(user);
-        
-        return CreatedAtAction(nameof(GetById), new { id = user.Id }, response);
+        return CreatedAtAction(nameof(GetUser), new { id = result.Response?.Id }, result.Response);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
     {
-        if (_userRepository is null)
-            return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available");
-
-        var user = await _userRepository.GetUserByUsernameOrEmailAsync(request.UsernameOrEmail);
-        if (user is null) return Unauthorized("Invalid username/email or password.");
-
-        var isValidPassword = PasswordHasher.VerifyPassword(request.Password, user.PasswordHash);
-        if (!isValidPassword) return Unauthorized("Invalid/email or password.");
-
-        var token = _jwtTokenService.GenerateToken(user);
-
-        var response = new UserLoginResponse()
-        {
-            UserId = user.Id,
-            Token = token,
-        };
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         
-        return Ok(response);
+        var result = await _userService.LoginUserAsync(request);
+        if (result.Error is not null) return BadRequest(result.Error);
+        
+        return Ok(result.Response);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequest request)
+    [Authorize]
+    public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UserUpdateRequest request)
     {
-        if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         
-        User? user = await _userRepository.GetAsync(id);
-        if (user is null) return NotFound();
-
-        if (!string.Equals(user.Username, request.Username, StringComparison.OrdinalIgnoreCase))
-        {
-            var existingUsername = await _userRepository.GetByUsernameAsync(request.Username);
-            if (existingUsername is not null && existingUsername.Id != id)
-                return BadRequest("Username is already taken.");
-        }
-
-        if (!string.Equals(user.Email, request.Email, StringComparison.OrdinalIgnoreCase))
-        {
-            var existingEmail = await _userRepository.GetUserByEmailAsync(request.Email);
-
-            if (existingEmail is not null && existingEmail.Id != id) return BadRequest("Email is already registered");
-        }
-
-        user.Username = request.Username;
-        user.Email = request.Email;
-        user.UpdatedAt = DateTime.UtcNow;
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId == Guid.Empty || currentUserId != id) return Unauthorized();
         
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
 
-        UserResponse? response = _mapper.Map<UserResponse>(user);
-        return Ok(response);
+        var updated = await _userService.UpdateUserAsync(id, request);
+        if (updated.Error is not null) return BadRequest(updated.Error);
+        
+        return Ok(updated);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [Authorize]
+    public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {
-        if (_userRepository is null) return StatusCode(StatusCodes.Status500InternalServerError, "User repository not available.");
-        bool deleted = await _userRepository.Delete(id);
+        var currentUserId = GetCurrentUserId();
+        if (currentUserId == Guid.Empty || currentUserId != id) return Unauthorized();
 
+        var deleted = await _userService.DeleteAsync(id);
+        
         if (!deleted) return NotFound();
 
-        await _userRepository.SaveChangesAsync();
         return NoContent();
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var userIdValue = HttpContext.User.Claims.FirstOrDefault(claim =>
+            claim.Type is ClaimTypes.NameIdentifier or JwtRegisteredClaimNames.Sub);
+
+        return Guid.TryParse(userIdValue?.Value, out var userId)
+            ? userId
+            : Guid.Empty;
     }
 }

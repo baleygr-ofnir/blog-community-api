@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using blog_community_api.Contracts.BlogPosts;
 using blog_community_api.Contracts.Comments;
+using blog_community_api.Core.Interfaces;
+using blog_community_api.Core.Services;
 using blog_community_api.Data;
 using blog_community_api.Data.Entities;
 using blog_community_api.Data.Repositories;
@@ -17,23 +19,11 @@ namespace blog_community_api.Controllers;
 [ApiController]
 public class BlogPostsController : ControllerBase
 {
-    private readonly IRepository<BlogPost> _blogPostRepository;
-    private readonly IRepository<Category> _categoryRepository;
-    private readonly IRepository<Comment> _commentRepository;
-    private readonly IMapper _mapper;
-
-    public BlogPostsController
-    (
-        IRepository<BlogPost> blogPostRepository,
-        IRepository<Category> categoryRepository,
-        IRepository<Comment> commentRepository,
-        IMapper mapper
-    )
+    private readonly BlogPostService _blogPostService;
+    
+    public BlogPostsController(IService<BlogPost> blogPostService)
     {
-        _blogPostRepository = blogPostRepository;
-        _categoryRepository = categoryRepository;
-        _commentRepository = commentRepository;
-        _mapper = mapper;
+        _blogPostService = blogPostService as BlogPostService ?? throw new Exception("BlogPostService is unavailable.");
     }
 
     [HttpPost]
@@ -45,23 +35,10 @@ public class BlogPostsController : ControllerBase
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty) return Unauthorized();
 
-        var category = await _categoryRepository.GetAsync(request.CategoryId);
-        if (category is null) return BadRequest("Category not found");
-
-        var newBlogPost = _mapper.Map<BlogPost>(request);
-        newBlogPost.Id = Guid.NewGuid();
-        newBlogPost.UserId = userId;
-        newBlogPost.CreatedAt = DateTime.UtcNow;
-
-        await _blogPostRepository.AddAsync(newBlogPost);
-        await _blogPostRepository.SaveChangesAsync();
-
-        var createdBlogPost = await _blogPostRepository.GetAsync(newBlogPost.Id);
-        if (createdBlogPost is null)
-            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to load created blog post.");
-
-        var response = _mapper.Map<BlogPostResponse>(createdBlogPost);
-        return CreatedAtAction(nameof(GetBlogPostById), new { id = createdBlogPost.Id }, response);
+        var result = await _blogPostService.CreateAsync(userId, request);
+        if (result.Error is not null) return BadRequest(result.Error);
+        
+        return CreatedAtAction(nameof(GetBlogPost), new { id = result.Response?.Id }, result.Response);
     }
 
     [HttpGet]
@@ -72,84 +49,43 @@ public class BlogPostsController : ControllerBase
         [FromQuery] string? title
     )
     {
-        IEnumerable<BlogPost> blogPosts;
-
-        if (categoryId.HasValue || !string.IsNullOrWhiteSpace(title))
-        {
-            var trimmedTitle = title?.Trim();
-            blogPosts = await _blogPostRepository.FindAsync
-                (
-                    bp => 
-                        (!categoryId.HasValue || bp.CategoryId == categoryId.Value)
-                        && (string.IsNullOrEmpty(title) || bp.Title.ToLower().Contains(title.ToLower()))
-                );
-        }
-        else
-        {
-            blogPosts = await _blogPostRepository.AllAsync();
-        }
+        var result = await _blogPostService.SearchAsync(categoryId, title);
         
-        var responses = _mapper.Map<List<BlogPostResponse>>(blogPosts.ToList());
-        return Ok(responses);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
-    public async Task<ActionResult<BlogPostResponse>> GetBlogPostById(Guid id)
+    public async Task<ActionResult<BlogPostResponse>> GetBlogPost([FromRoute] Guid id)
     {
-        var blogPost = await _blogPostRepository.GetAsync(id);
-        if (blogPost is null) return NotFound();
+        var result = await _blogPostService.GetBlogPostAsync(id);
         
-        var response = _mapper.Map<BlogPostResponse>(blogPost);
-        return Ok(response);
+        return result is not null ? Ok(result) : NotFound();
     }
 
     [HttpPut("{id:guid}")]
     [Authorize]
-    public async Task<IActionResult> UpdateBlogPost
-    (
-        Guid id,
-        [FromBody] BlogPostUpdateRequest request
-    )
+    public async Task<IActionResult> UpdateBlogPost ([FromRoute] Guid id, [FromBody] BlogPostUpdateRequest request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty) return Unauthorized();
-        
-        var blogPost = await _blogPostRepository.GetAsync(id);
-        if (blogPost is null) return NotFound();
-        
-        if (blogPost.UserId != userId) return Forbid();
-        
-        var matchingCategories = await _categoryRepository.GetAsync(request.CategoryId);
-        if (matchingCategories is null) return BadRequest("Invalid category id.");
-        
-        _mapper.Map(request, blogPost);
-        blogPost.UpdatedAt = DateTime.UtcNow;
-        
-        _blogPostRepository.Update(blogPost);
-        await _blogPostRepository.SaveChangesAsync();
+
+        var updated = await _blogPostService.UpdateAsync(id, request);
+        if (updated.Error is not null) return BadRequest(updated.Error);
         
         return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     [Authorize]
-    public async Task<IActionResult> DeleteBlogPost(Guid id)
+    public async Task<IActionResult> DeleteBlogPost([FromRoute] Guid id)
     {
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty) return Unauthorized();
-        
-        var blogPost = await _blogPostRepository.GetAsync(id);
-        if (blogPost is null) return NotFound();
-        
-        if (blogPost.UserId != userId) return Forbid();
 
-        var wasDeleted = await _blogPostRepository.Delete(id);
-        if (!wasDeleted) return NotFound();
-        
-        await _blogPostRepository.SaveChangesAsync();
+        var deleted = await _blogPostService.DeleteAsync(id);
         
         return NoContent();
     }
@@ -162,31 +98,20 @@ public class BlogPostsController : ControllerBase
         
         var userId = GetCurrentUserId();
         if (userId == Guid.Empty) return Unauthorized();
-        
-        var blogPost = await _blogPostRepository.GetAsync(blogPostId);
-        if (blogPost is null) return NotFound("BlogPost not found");
+
+        var blogPost = await _blogPostService.GetBlogPostAsync(blogPostId);
+        if (blogPost is null) return NotFound("Blog post was not found.");
         
         if (blogPost.UserId == userId) return Forbid();
-
-        var comment = _mapper.Map<Comment>(request);
-        comment.Id = Guid.NewGuid();
-        comment.BlogPostId = blogPostId;
-        comment.UserId = userId;
-        comment.CreatedAt = DateTime.UtcNow;
         
-        await _commentRepository.AddAsync(comment);
-        await _blogPostRepository.SaveChangesAsync();
-        
-        var createdComment = await _commentRepository.GetAsync(comment.Id);
-        if (createdComment is null) return StatusCode(StatusCodes.Status500InternalServerError, "Failed to load created comment.");
-        
-        var response = _mapper.Map<CommentResponse>(createdComment);
+        var result = await _blogPostService.CreateCommentAsync(blogPostId, userId, request);
+        if (result.Error is not null) return BadRequest(result.Error);
         
         return CreatedAtAction
             (
-                nameof(GetBlogPostById),
-                new { id = createdComment.Id },
-                response
+                nameof(GetBlogPost),
+                new { id = blogPostId },
+                result.Response
             );
     }
 
@@ -194,22 +119,19 @@ public class BlogPostsController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments(Guid blogPostId)
     {
-        var blogPost = await _blogPostRepository.GetAsync(blogPostId);
-        if (blogPost is null) return NotFound("Blog post not found.");
+        var result = await _blogPostService.GetCommentsAsync(blogPostId);
+        if (result.Error is not null) return NotFound(result.Error);
         
-        var comments = await _commentRepository.FindAsync(c => c.BlogPostId == blogPostId);
-        var responses = _mapper.Map<List<CommentResponse>>(comments);
-        
-        return Ok(responses);
+        return Ok(result.Response);
     }
 
     private Guid GetCurrentUserId()
     {
-        var userIdClaim = HttpContext.User.Claims
+        var userIdValue = HttpContext.User.Claims
             .FirstOrDefault(c =>
                 c.Type is ClaimTypes.NameIdentifier or JwtRegisteredClaimNames.Sub);
         
-        return Guid.TryParse(userIdClaim?.Value, out var userId)
+        return Guid.TryParse(userIdValue?.Value, out var userId)
             ? userId
             : Guid.Empty;
     }

@@ -5,8 +5,8 @@ POST {{blog_community_api_HostAddress}}/users/register
 Content-Type: application/json
 
 {
-    "username": "testuser2",
-    "email": "test2@example.com",
+    "username": "testuser1",
+    "email": "test1@example.com",
     "password": "P@ssword!"
 }
 
@@ -30,15 +30,15 @@ Content-Type: application/json
 
 ### Existing user routes:
 ###
-@userId1 = 019c7645-4dfb-72e9-9fef-857b1a4ef751
+@userId1 = 019caffa-a63c-76c4-bd81-f4de94b3ce80
 @username1 = testuser1
 @email1 = test1@example.com
-@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljNzY0NS00ZGZiLTcyZTktOWZlZi04NTdiMWE0ZWY3NTEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWM3NjQ1LTRkZmItNzJlOS05ZmVmLTg1N2IxYTRlZjc1MSIsImp0aSI6ImQ3YjAyYWJhLWUzNzctNDIzNS1iMDJkLWU3OWU4ZTQ2Njg1NyIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzE2MDU3MDIsImV4cCI6MTc3MTYwOTMwMn0.GRBy1z_OV8Gre9Sy6jLnbgSHlcewlAE3Lnidt6GF51g
+@token1 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljYWZmYS1hNjNjLTc2YzQtYmQ4MS1mNGRlOTRiM2NlODAiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWNhZmZhLWE2M2MtNzZjNC1iZDgxLWY0ZGU5NGIzY2U4MCIsImp0aSI6ImE2MzJmZmFkLTdhOGUtNDFiMy1iODgxLWI3ZjNlNTMwZTBhYSIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzI0NzkzMzYsImV4cCI6MTc3MjQ4MjkzNn0.0hfuMeHofj0Ymf3Z1SZpMjDK1wpB2YLtigCISOj3Q8o
 
 @userId2 = 019c7b93-e9f3-74f1-9bba-ea006eef944b
 @username2 = testuser1
 @email2 = test1@example.com
-@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljN2I5My1lOWYzLTc0ZjEtOWJiYS1lYTAwNmVlZjk0NGIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWM3YjkzLWU5ZjMtNzRmMS05YmJhLWVhMDA2ZWVmOTQ0YiIsImp0aSI6IjE0YTkyNGM0LTE2NmUtNDg4OC04ZDMzLTE3MWI4ZjY4N2JkMSIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzE2MDU3NDMsImV4cCI6MTc3MTYwOTM0M30.79vKugCvV77P8YyxTAhJo_NHIgTZi516ee2oPnhdmYI
+@token2 = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMTljYWU2NS0wZDMyLTcyYTYtYjYxYS1mMzk1Mjk2ZGJhNGMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAxOWNhZTY1LTBkMzItNzJhNi1iNjFhLWYzOTUyOTZkYmE0YyIsImp0aSI6IjhiYjFlMTIxLWJmODMtNGEzOC04NzkxLWIzOWJiZjc3NDgyNSIsImlzcyI6ImJsb2ctY29tbXVuaXR5LWFwaSIsImF1ZCI6WyJibG9nLWNvbW11bml0eS1hcGktY2xpZW50IiwiYmxvZy1jb21tdW5pdHktYXBpLWNsaWVudCJdLCJuYmYiOjE3NzI0Nzk5ODQsImV4cCI6MTc3MjQ4MzU4NH0.5XtnXzHlfAjk4LSsqVN7j5LkvxWK04x6HcBTMtuYWs4
 
 ### Get By User ID
 GET {{blog_community_api_HostAddress}}/users/{{userId1}}
@@ -59,7 +59,8 @@ Content-Type: application/json
 }
 
 ### Delete User
-DELETE {{blog_community_api_HostAddress}}/users/{{userId}}
+DELETE {{blog_community_api_HostAddress}}/users/{{userId1}}
+Authorization: Bearer {{token1}}
 
 ### Create Category as testuser1
 POST {{blog_community_api_HostAddress}}/categories
@@ -88,17 +89,17 @@ Content-Type: application/json
 GET {{blog_community_api_HostAddress}}/blogposts
 
 ### Filter Blog posts by title
-GET {{blog_community_api_HostAddress}}/blogposts?title=first
+GET {{blog_community_api_HostAddress}}/blogposts?title=skiing
 
 ### Filter Blog posts by category
-GET {{blog_community_api_HostAddress}}/BlogPosts?categoryId=aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+GET {{blog_community_api_HostAddress}}/BlogPosts?categoryId=3a6b0e59-4bf8-4fef-94b0-80c0b913f1b4
 
 ### Get Blog post by ID
 GET {{blog_community_api_HostAddress}}/blogposts/a59b9d2e-438b-47f2-ab88-3e489d3e2ccc
 
 ### Update Blog post
-PUT {{blog_community_api_HostAddress}}/blogposts/422ab538-ef67-4e2f-a4e2-1a69c3bf01ab
-Authorization: Bearer {{token}}
+PUT {{blog_community_api_HostAddress}}/blogposts/d6dcf7de-7b97-4950-8b9c-1c508cfe6e8c
+Authorization: Bearer {{token1}}
 Content-Type: application/json
 
 {
@@ -108,11 +109,11 @@ Content-Type: application/json
 }
 
 ### Delete Blog post
-DELETE {{blog_community_api_HostAddress}}/blogposts/422ab538-ef67-4e2f-a4e2-1a69c3bf01ab
-Authorization: Bearer {{token}}
+DELETE {{blog_community_api_HostAddress}}/blogposts/98d4e0bc-1ef4-4342-87dd-a99c76b03a72 
+Authorization: Bearer {{token1}}
 
 ### testuser2 comment on testuser1's post
-POST {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+POST {{blog_community_api_HostAddress}}/blogposts/d6dcf7de-7b97-4950-8b9c-1c508cfe6e8c/comments
 Authorization: Bearer {{token2}}
 Content-Type: application/json
 
@@ -121,10 +122,10 @@ Content-Type: application/json
 }
 
 ### Get comments for post
-GET {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+GET {{blog_community_api_HostAddress}}/blogposts/d6dcf7de-7b97-4950-8b9c-1c508cfe6e8c/comments
 
 ### Comment own post test
-POST {{blog_community_api_HostAddress}}/blogposts/0ac1c63b-a489-4b6d-a0f7-37862d009f44/comments
+POST {{blog_community_api_HostAddress}}/blogposts/d6dcf7de-7b97-4950-8b9c-1c508cfe6e8c/comments
 Authorization: Bearer {{token1}}
 Content-Type: application/json
 

@@ -4,6 +4,8 @@ using blog_community_api.Data.Repositories;
 using blog_community_api.Data.Entities;
 using blog_community_api.Mapping;
 using AutoMapper;
+using blog_community_api.Core.Interfaces;
+using blog_community_api.Core.Services;
 using blog_community_api.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -68,7 +70,13 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!))
                 };
             });
-        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        
+        // Core DIs
+        builder.Services.AddScoped<IService<User>, UserService>();
+        builder.Services.AddScoped<IService<BlogPost>, BlogPostService>();
+        builder.Services.AddScoped<IService<Category>, CategoryService>();
+
+            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
         var app = builder.Build();

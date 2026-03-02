@@ -46,7 +46,7 @@ public abstract class GenericRepository<T> : IRepository<T> where T : class
         DbSet.Update(entity);
     }
 
-    public virtual async Task<bool> Delete(Guid id)
+    public virtual async Task<bool> DeleteAsync(Guid id)
     {
         var entity = await GetAsync(id);
         if (entity == null) return false;
